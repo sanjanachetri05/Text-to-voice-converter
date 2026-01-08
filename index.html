@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" id="mainHtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceFlow Pro</title>
+    <script>
+        // Apply stored theme as early as possible before Tailwind loads to avoid flicker
+        (function(){
+            try {
+                const t = localStorage.getItem('theme');
+                if (t === 'dark') document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+            } catch (e) {}
+        })();
+
+        // Configure Tailwind CDN to use class-based dark mode (must run before loading CDN)
+        window.tailwind = { config: { darkMode: 'class' } };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Theme helpers: persist theme and toggle
+        function applyTheme(theme) {
+            const html = document.getElementById('mainHtml');
+            if (theme === 'dark') html.classList.add('dark'); else html.classList.remove('dark');
+            try { localStorage.setItem('theme', theme); } catch (e) {}
+        }
+
+        function toggleDarkMode() {
+            const html = document.getElementById('mainHtml');
+            const isDark = html.classList.toggle('dark');
+            try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+        }
+
+        // Apply stored theme as early as possible to avoid media-based dark overrides
+        (function(){
+            let stored = null;
+            try { stored = localStorage.getItem('theme'); } catch (e) { stored = null }
+            if (!stored) {
+                // default to light
+                stored = 'light';
+            }
+            applyTheme(stored);
+        })();
+    </script>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 min-h-screen transition-colors duration-300 p-4 font-sans">
+
+    <div class="max-w-2xl mx-auto mt-10">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">VoiceFlow <span class="text-slate-800 dark:text-white">Pro</span></h1>
+            <button onclick="toggleDarkMode()" class="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md border dark:border-slate-700">
+                🌙 / ☀️
+            </button>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700">
+            <textarea id="textInput" class="w-full p-4 bg-slate-50 dark:bg-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-2xl h-44 focus:ring-2 focus:ring-indigo-500 outline-none resize-none transition-all" placeholder="Enter text to convert to speech..."></textarea>
+
+            <div class="mt-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Voice Engine</label>
+                    <select id="voiceSelect" class="w-full p-3 bg-slate-50 dark:bg-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-xl outline-none"></select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border dark:border-slate-700">
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Speed: <span id="speedVal" class="text-indigo-600 font-bold">1</span>x</label>
+                        <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" class="w-full accent-indigo-600">
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border dark:border-slate-700">
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Pitch: <span id="pitchVal" class="text-indigo-600 font-bold">1</span></label>
+                        <input type="range" id="pitch" min="0" max="2" value="1" step="0.1" class="w-full accent-indigo-600">
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button id="speakBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                        <span>Play Audio</span> 🔊
+                    </button>
+                    <button id="clearBtn" class="px-6 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white font-bold rounded-2xl hover:bg-red-100 hover:text-red-600 transition-all">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10">
+            <h2 class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-4">Recent Snippets</h2>
+            <div id="historyList" class="space-y-3">
+                </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
